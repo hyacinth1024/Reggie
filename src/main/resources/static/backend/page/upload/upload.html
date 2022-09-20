@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--elementUI的css资源-->
+    <link rel="stylesheet" href="../../plugins/element-ui/index.css" />
+    <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+    <script src="../../plugins/vue/vue.js"></script>
+    <!-- 引入组件库 -->
+    <script src="../../plugins/element-ui/index.js"></script>
+    <!-- 引入axios -->
+    <script src="../../plugins/axios/axios.min.js"></script>
+    <style>
+      .avatar-uploader .el-upload {
+        border: 1px dashed #d9d9d9;
+        border-radius: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar-uploader .el-upload:hover {
+        border-color: #409EFF;
+      }
+      .avatar-uploader-icon {
+        font-size: 28px;
+        color: #8c939d;
+        width: 178px;
+        height: 178px;
+        line-height: 178px;
+        text-align: center;
+      }
+      .avatar {
+        width: 178px;
+        height: 178px;
+        display: block;
+      }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!--
+      action:请求发送的路径
+      show-file-list	是否显示已上传文件列表,设置成false不显示图片列表
+      on-success	文件上传成功时的钩子，文件上传成功后会自动调用的函数
+      before-upload  文件上传之前的钩子，文件上传之前回自动调用的函数，对文件的类型、大小做一个限制
+     -->
+    <el-upload
+            class="avatar-uploader"
+            action="/common/upload"
+            name="imageFile"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+      <img v-if="imageUrl" :src="imageUrl" class="avatar">
+      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+    </el-upload>
+
+
+
+     <!-- <img src="https://img2.baidu.com/it/u=2742993889,1394227653&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"/>-->
+  </div>
+  <script>
+    new Vue({
+      el:'#app',
+      data:{
+        imageUrl:''
+      },
+      methods:{
+        //文件上传成功后回调的函数,res返回的结果
+        handleAvatarSuccess(res, file) {
+          //this.imageUrl = URL.createObjectURL(file.raw);
+          //alert(JSON.stringify(res));  res.data就是图片的名称
+          //图片上传成功后，根据图片的名称从后台将图片下载单前端进行展示
+          this.imageUrl = '/common/download?name='+res.data;
+          //发送请求的地址:/common/downloadFile
+          //请求方式: GET
+          //请求参数:  name = xxxxx-xxx-xxx-xxx.jpg
+          //请求返回值: 文件下载，以流的方式进行返回
+
+        },
+        beforeAvatarUpload(file) {
+          const isJPG = file.type === 'image/jpeg';
+          const isLt2M = file.size / 1024 / 1024 < 2;
+
+          if (!isJPG) {
+            this.$message.error('上传头像图片只能是 JPG 格式!');
+          }
+          if (!isLt2M) {
+            this.$message.error('上传头像图片大小不能超过 2MB!');
+          }
+          return isJPG && isLt2M;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
